@@ -8,10 +8,9 @@
 
 ## 📺 Day 02 Video
 
-[Day 02 - 30 Days of AWS Terraform](https://youtu.be/JFiMmaktnuM?si=2Y3mNqdyP_29pjiK)
+[![Day 02 - 30 Days of AWS Terraform](https://img.youtube.com/vi/JFiMmaktnuM/maxresdefault.jpg)](https://youtu.be/JFiMmaktnuM)
 
-> 🎬 *Click the video above to watch Day 02 of the #30daysofawsterraform challenge.*
-
+> 🎬 *Click the thumbnail above to watch Day 02 of the #30daysofawsterraform challenge.*
 ---
 
 ## 📋 Topics Covered
