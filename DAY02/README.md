@@ -1,123 +1,126 @@
-# Day 02 — Terraform Provider
+# 🪣 Day 03: My First S3 Bucket, Built with Code
 
-### 30 Days of AWS Terraform Challenge
+> *Clicking through the AWS console is easy. Making AWS do what you say from a text file? That's where it gets fun.*
 
-> **#30daysofawsterraform** | Tag: [@PiyushSachdeva](https://www.linkedin.com/in/piyush-sachdeva)
+![Terraform](https://img.shields.io/badge/Terraform-IaC-7B42BC?logo=terraform&logoColor=white)
+![AWS](https://img.shields.io/badge/AWS-S3-FF9900?logo=amazonaws&logoColor=white)
+![Challenge](https://img.shields.io/badge/%2330DaysOfAWSTerraform-Day%2003%2F30-2ea44f)
 
----
-
-## 📺 Day 02 Video
-
-[![Day 02 - 30 Days of AWS Terraform](https://img.youtube.com/vi/JFiMmaktnuM/hqdefault.jpg)](https://youtu.be/JFiMmaktnuM)
-
-> 🎬 *Click the thumbnail above to watch Day 02 of the #30daysofawsterraform challenge.*
+Part of the **#30DaysOfAWSTerraform** challenge by [Piyush Sachdeva](https://www.linkedin.com/in/piyushsachdeva/). Day 3 is where Terraform stops being theory and starts creating real cloud resources.
 
 ---
 
-## 📋 Topics Covered
+## 🎯 What I Learned Today
 
-- Terraform Providers
-- Provider version vs Terraform Core version
-- Why version matters
-- Version constraints
-- Operators for versions
+- 🔐 How AWS **authentication & authorization** actually works
+- 🪣 Creating and managing an **S3 bucket** purely through Terraform
+- 🔁 The core Terraform loop: `init → validate → plan → apply → destroy`
 
 ---
 
-## 📝 What I Learned
+## 🧰 Before You Start
 
-### 🔌 What are Terraform Providers?
+### 1. An AWS account
+No account yet? Grab the [AWS Free Tier](https://aws.amazon.com/free/).
 
-Providers are **plugins** that allow Terraform to interact with cloud platforms, SaaS providers, and other APIs.
+### 2. The AWS CLI
+First, check your machine's architecture so you download the right installer:
 
-For AWS, we use the `hashicorp/aws` provider.
+```bash
+# Linux / macOS
+uname -m
 
-```text
-Your .tf Files
-       │
-       ▼
-Terraform Core ──────► AWS Provider Plugin ──────► AWS API
-(parses config)        (hashicorp/aws)             (EC2, VPC...)
+# Windows PowerShell
+$env:PROCESSOR_ARCHITECTURE
+```
+
+<details>
+<summary><b>🪟 Windows</b></summary>
+
+```powershell
+# winget (recommended)
+winget install Amazon.AWSCLI
+
+# or Chocolatey
+choco install awscli
+```
+</details>
+
+<details>
+<summary><b>🍎 macOS</b></summary>
+
+```bash
+# Homebrew
+brew install awscli
+
+# or the official installer
+curl "https://awscli.amazonaws.com/AWSCLIV2.pkg" -o "AWSCLIV2.pkg"
+sudo installer -pkg AWSCLIV2.pkg -target /
+```
+</details>
+
+<details>
+<summary><b>🐧 Ubuntu / Debian (x86_64)</b></summary>
+
+```bash
+sudo apt update
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install
+aws --version
+```
+</details>
+
+<details>
+<summary><b>🐧 Ubuntu / Debian (ARM64)</b></summary>
+
+```bash
+curl "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install
+```
+</details>
+
+---
+
+## 🔑 Teaching Terraform Who You Are
+
+Terraform can't touch AWS until AWS knows who's asking. Here are four ways to introduce yourself:
+
+| # | Method | Best for |
+|---|--------|----------|
+| 1 | `aws configure` | Local learning (what I used) ⭐ |
+| 2 | Environment variables | CI pipelines, quick tests |
+| 3 | IAM Roles | EC2 & AWS services, the gold standard 🏆 |
+| 4 | Named profiles | Juggling multiple accounts |
+
+**Method 1: AWS CLI configuration**
+```bash
+aws configure
+```
+You'll be asked for your Access Key ID, Secret Access Key, default region (e.g. `us-east-1`) and output format (`json`).
+
+**Method 2: Environment variables**
+```bash
+export AWS_ACCESS_KEY_ID="your-access-key"
+export AWS_SECRET_ACCESS_KEY="your-secret-key"
+export AWS_DEFAULT_REGION="us-east-1"
+```
+
+**Method 3: IAM Roles**
+Attach a role directly to your EC2 instance or AWS service. No keys to store, nothing to leak. This is the best practice.
+
+**Method 4: Named profiles**
+```bash
+aws configure --profile dev
+export AWS_PROFILE=dev
 ```
 
 ---
 
-### ⚙️ Provider Version vs Terraform Core Version
+## 🏗️ The Terraform Code
 
-| **Terraform Core** | **Provider** |
-|---|---|
-| The main Terraform binary | Plugin for a specific API |
-| Example: `terraform v1.9.0` | Example: `hashicorp/aws v6.0` |
-| Manages state, configuration parsing, plan, and apply | Handles API calls to AWS, Azure, GCP, etc. |
-| Independent release cycle | Independent release cycle |
-
-> They have **separate versioning** — upgrading Terraform Core does not automatically upgrade your providers.
-
----
-
-### ❓ Why Version Matters
-
-- ✅ **Compatibility** — Ensures the provider works with your Terraform version.
-- ✅ **Stability** — Pin or constrain versions to avoid unexpected breaking changes.
-- ✅ **Features** — New provider versions add support for new AWS services and features.
-- ✅ **Bug Fixes** — Updates often include important fixes.
-- ✅ **Reproducibility** — Consistent versions help ensure the same behavior across environments.
-
----
-
-### 🔢 Version Constraints
-
-Use version constraints to specify acceptable provider versions:
-
-| Operator | Example | Meaning |
-|---|---|---|
-| `=` | `= 1.2.3` | Exact version only |
-| `>=` | `>= 1.2` | Minimum version |
-| `<=` | `<= 1.2` | Maximum version |
-| `~>` | `~> 1.2` | `>= 1.2, < 2.0` |
-| `~>` | `~> 1.2.3` | `>= 1.2.3, < 1.3.0` |
-| `>=`, `<` | `>= 1.2, < 2.0` | Between 1.2 and 2.0 |
-
----
-
-## 💻 Configuration Examples
-
-### Basic Provider Configuration
-
-```hcl
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = ">= 5.0"
-    }
-  }
-}
-
-provider "aws" {
-  region = "us-east-1"
-}
-```
-
-### Multiple Provider Versions
-
-```hcl
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 5.0"
-    }
-
-    random = {
-      source  = "hashicorp/random"
-      version = "~> 3.1"
-    }
-  }
-}
-```
-
-### Provider with VPC Resource (Day 02 Lab)
+### Provider setup: `main.tf`
 
 ```hcl
 terraform {
@@ -129,84 +132,125 @@ terraform {
   }
 }
 
-# Configure the AWS Provider
 provider "aws" {
   region = "us-east-1"
 }
+```
 
-# Create a VPC
-resource "aws_vpc" "my_vpc" {
-  cidr_block = "10.0.0.0/16"
+### The bucket
+
+```hcl
+resource "aws_s3_bucket" "my_bucket" {
+  bucket = "your-unique-bucket-name-day03"   # must be globally unique!
+
+  tags = {
+    Name        = "Day03-S3-Bucket"
+    Environment = "Learning"
+    Challenge   = "30DaysOfAWSTerraform"
+  }
 }
 ```
 
+> ⚠️ **Heads up:** bucket names are unique across *every AWS account on Earth*. `my-bucket` is definitely taken. Get creative.
+
 ---
 
-## 🏗️ Architecture Diagram
+## 🔄 The Terraform Workflow
 
-```text
-┌─────────────────────────────────────────────┐
-│              AWS Cloud (us-east-1)          │
-│                                             │
-│   ┌─────────────────────────────────────┐   │
-│   │          VPC: my-vpc                │   │
-│   │        CIDR: 10.0.0.0/16            │   │
-│   │                                     │   │
-│   │   Subnets, EC2, RDS go here...      │   │
-│   └─────────────────────────────────────┘   │
-│                                             │
-└─────────────────────────────────────────────┘
-
-        Managed by: Terraform + AWS Provider
+```mermaid
+flowchart LR
+    A[init] --> B[validate] --> C[plan] --> D[apply] --> E[show] --> F[destroy]
 ```
-
----
-
-## 🚀 How to Run
 
 ```bash
-# 1. Initialize — downloads the AWS provider plugin
-terraform init
-
-# 2. Preview what will be created
-terraform plan
-
-# 3. Apply and create the infrastructure
-terraform apply
-
-# 4. Lock provider versions for consistency
-terraform providers lock
-
-# 5. Clean up when done
-terraform destroy
+terraform init       # 1. Download the provider plugins
+terraform validate   # 2. Catch syntax mistakes before AWS ever sees them
+terraform plan       # 3. Preview what's about to happen
+terraform apply      # 4. Make it real: bucket created! 🎉
+terraform show       # 5. Inspect the current state
+terraform destroy    # 6. Clean up (your wallet will thank you)
 ```
 
 ---
 
-## ✅ Best Practices
+## 🎬 Watch It Come Alive
 
-1. Always specify provider versions in your configuration.
-2. Use version constraints to control provider upgrades.
-3. Test provider upgrades in **development** before production.
-4. Document version requirements in your README.
-5. Commit `.terraform.lock.hcl` to version control for consistent provider selections.
+Reading commands is one thing. Watching the bucket appear in the console is another. Here's the video walkthrough that this day is based on, where the whole thing goes from empty folder to live S3 bucket:
 
----
-
-## 🔗 Resources
-
-- [Terraform AWS Provider Docs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs)
-- [AWS VPC Documentation](https://docs.aws.amazon.com/vpc/latest/userguide/what-is-amazon-vpc.html)
-- [30 Days of AWS Terraform Challenge](https://github.com/piyushsachdeva/30-Days-of-Terraform)
+<p align="center">
+  <a href="https://www.youtube.com/watch?v=09HQ_R1P7Lw&t=357s">
+    <img src="https://img.youtube.com/vi/09HQ_R1P7Lw/maxresdefault.jpg" alt="[3/30] Create an AWS S3 Bucket Using Terraform (it's simple)" width="600">
+  </a>
+  <br>
+  <sub>▶️ <a href="https://www.youtube.com/watch?v=09HQ_R1P7Lw&t=357s"><b>[3/30] Create an AWS S3 Bucket Using Terraform (it's simple)</b></a></sub>
+</p>
 
 ---
 
-## ➡️ Next Steps
+## 📁 Project Structure
 
-Proceed to **Day 03** to learn about creating your first AWS resources with Terraform.
-
-Check `task.md` for your assignments.
+```
+day03/
+├── main.tf               # Provider + S3 bucket resource
+├── README.md             # You are here 👋
+└── .terraform.lock.hcl   # Provider version lock (commit this to Git)
+```
 
 ---
 
-*Day 02 of #30daysofawsterraform 🚀*
+## 💡 Key Takeaways
+
+1. **Credentials first.** Terraform can't call AWS APIs until they're configured.
+2. **IAM Roles beat static keys.** No keys stored anywhere means nothing to steal.
+3. **Bucket names are global**, across every account and every region.
+4. **`terraform validate` is a free safety net**, catching errors before any API call.
+5. **Always `terraform destroy` after practice.** Forgotten resources become surprise bills.
+
+---
+
+## 📌 Quick Reference
+
+| Topic | Detail |
+|-------|--------|
+| **Bucket naming** | Lowercase, 3–63 characters, globally unique, no underscores |
+| **Region** | Make sure it matches where you intend to deploy |
+| **Free Tier** | S3 has historically included 5 GB storage, 20,000 GET and 2,000 PUT requests/month. Terms change, so check the current [Free Tier page](https://aws.amazon.com/free/) |
+| **Cleanup** | `terraform destroy` when done, since storage costs add up |
+| **Credentials** | Never commit `~/.aws/credentials` or hardcode keys in `.tf` files 🚫 |
+
+---
+
+## 🩹 When Things Go Wrong
+
+| Error | Fix |
+|-------|-----|
+| `No valid credential sources found` | Run `aws configure` or export the environment variables |
+| `BucketAlreadyExists` | Someone has your name. Pick a more unique one |
+| `Invalid region` | Check the `region` in your `provider "aws"` block |
+| `AccessDenied` | Your IAM user/role needs the `s3:CreateBucket` permission |
+
+---
+
+## 📚 Resources
+
+- [Terraform AWS S3 Docs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket)
+- [AWS CLI Installation](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
+- [AWS Free Tier](https://aws.amazon.com/free/)
+- [S3 Bucket Naming Rules](https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html)
+
+---
+
+## ⏭️ Up Next
+
+**Day 04: Terraform State File Management.** Remote backends with S3 + DynamoDB for state locking. Today's bucket is about to get a very important job. 👀
+
+---
+
+<p align="center">
+  <b>Day 03 of 30</b> · Building in public 🚀<br>
+  Follow the journey on <a href="https://www.linkedin.com/in/austin-joseph-686629327/">LinkedIn</a>
+</p>
+
+<p align="center">
+  <b>Day 03 of #30daysofawsterraform 🚀</b>
+</p>
