@@ -247,7 +247,7 @@ day03/
 ---
 
 <p>
-  <b>Day 03 of 30</b> · Building in public 🚀<br>
+  
   Follow the journey on <a href="https://www.linkedin.com/in/austin-joseph-686629327/">LinkedIn</a>
 <hr>
 
