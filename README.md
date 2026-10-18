@@ -8,10 +8,10 @@ Following the [#30DaysofAWSTerraform playlist](https://www.youtube.com/playlist?
 
 | Day | Task | Done |
 |-----|------|------|
-| 0 | Course intro | ⬜ |
-| 1 | How Terraform works, intro to IaC | ⬜ |
-| 2 | Terraform AWS provider | ⬜ |
-| 3 | Create an S3 bucket | ⬜ |
+| 0 | Course intro | ✅  |
+| 1 | How Terraform works, intro to IaC | ✅  |
+| 2 | Terraform AWS provider | ✅  |
+| 3 | Create an S3 bucket | ✅  |
 | 4 | State file management, S3 remote backend | ⬜ |
 | 5 | Variables: input, output, local | ⬜ |
 | 6 | Project structure best practices | ⬜ |
